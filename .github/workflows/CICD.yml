@@ -6,6 +6,8 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+env:
+  ACTIONS_STEP_DEBUG: false 
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,6 +42,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Clean up disk space
+        run: |
+          sudo rm -rf /opt/hostedtoolcache
+          docker system prune -af || true
+          sudo apt-get clean
+      
       - name: Build and push
         uses: docker/build-push-action@v5
         with:

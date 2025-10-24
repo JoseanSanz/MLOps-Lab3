@@ -13,7 +13,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libjpeg-dev \
     zlib1g-dev \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && pip cache purge
+    && rm -rf /root/.cache/huggingface /root/.cache/torch
 
 # -------------------------------------------------------------------
 # Etapa 1: instalar uv y dependencias de proyecto
@@ -29,7 +31,7 @@ COPY pyproject.toml .
 COPY uv.lock* .
 
 # Instalar dependencias del proyecto en el entorno del sistema
-RUN uv pip install --system --no-cache .
+RUN uv pip install --system --no-cache-dir .
 
 # -------------------------------------------------------------------
 # Etapa 2: copiar el código fuente y preparar entorno de ejecución
@@ -52,3 +54,4 @@ EXPOSE 8000
 
 # Comando por defecto: iniciar FastAPI con uvicorn
 CMD ["uvicorn", "api.fastapi_app:app", "--host", "0.0.0.0", "--port", "8000"]
+

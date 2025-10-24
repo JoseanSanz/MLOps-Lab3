@@ -11,11 +11,12 @@ import onnxruntime as ort
 import json
 
 class ImageClassifier:
-    def __init__(self, model_path="model.onnx", labels_file="labels.json"):#"facebook/deit-tiny-patch16-224"
+    def __init__(self, model_path="./mylib/model.onnx", labels_file="./mylib/labels.json"):#"facebook/deit-tiny-patch16-224"
         """
         Inicializa la sesión ONNX Runtime.
         """
         self.session = ort.InferenceSession(model_path)
+
         self.input_name = self.session.get_inputs()[0].name
         self.id2label = {}
         with open(labels_file, encoding="utf-8") as f:
@@ -29,7 +30,7 @@ class ImageClassifier:
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
         # Redimensionar y normalizar (ajusta si tu modelo usa otro tamaño)
-        image = image.resize((224, 224))
+        image = image.resize((256, 256))
         img = np.array(image).astype(np.float32) / 255.0
 
         # Cambiar orden de canales: HWC → CHW
@@ -45,9 +46,9 @@ class ImageClassifier:
 
         with torch.no_grad():
             outputs = self.session.run(None, inputs)
-            logits = outputs.logits
-            pred_class_idx = logits.argmax(-1).item()
-            label = self.id2label[pred_class_idx]
+            logits = outputs[0]
+            pred_class_idx = int(logits.argmax(-1).item())
+            label = self.id2label.get(str(pred_class_idx), f"class_{pred_class_idx}")
         return label
 
     # Crea una función que reciba una imagen y la redimensione a un tamaño que se le pasa como parámetro
@@ -56,7 +57,7 @@ class ImageClassifier:
 
         Args:
             image (PIL.Image.Image): Imagen a redimensionar.
-            width (int): Anchura deseada.
+            width (int): Anchura deseada. 
             height (int): Altura deseada.
 
         Returns:

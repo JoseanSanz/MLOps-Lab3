@@ -9,9 +9,10 @@ import torch
 import io
 
 
+
 class ImageClassifier:
-    def __init__(self, model_name="facebook/deit-tiny-patch16-224"):
-        self.processor = AutoImageProcessor.from_pretrained(model_name)
+    def __init__(self, model_name="google/mobilenet_v2_1.0_224"):#"facebook/deit-tiny-patch16-224"
+        self.processor = AutoImageProcessor.from_pretrained(model_name, use_fast=False)
         self.model = AutoModelForImageClassification.from_pretrained(model_name)
         self.model.eval()
 

@@ -8,6 +8,7 @@ on:
 
 env:
   ACTIONS_STEP_DEBUG: false 
+  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,6 +30,9 @@ jobs:
         uses: actions/checkout@v4 
         with:
           submodules: recursive
+
+      - name: Clean runner
+        run: rm -rf /root/.cache/pip /tmp/*
 
       - name: Set up QEMU (for buildx)
         uses: docker/setup-qemu-action@v3

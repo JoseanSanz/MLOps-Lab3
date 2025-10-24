@@ -1,3 +1,8 @@
+from PIL import Image
+import io
+from transformers import AutoImageProcessor, AutoModelForImageClassification
+import torch
+
 """
 Módulo que contiene funciones para predecir etiquetas de imágenes y redimensionarlas.
 """

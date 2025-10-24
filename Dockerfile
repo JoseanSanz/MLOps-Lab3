@@ -48,7 +48,7 @@ COPY templates ./templates
 # Crear carpeta para la librería mylib
 RUN mkdir -p /app/mylib
 # Copiar archivos esenciales de la librería mylib
-COPY mylib/model.py mylib/__init__.py /app/mylib/
+COPY mylib/model.py mylib/__init__.py mylib/model.onnx mylib/model.onnx.data mylib/labels.json /app/mylib/
 
 
 # Crear carpeta de trabajo para imágenes o archivos

@@ -43,8 +43,13 @@ COPY --from=builder /usr/local /usr/local
 
 # Copiar el código fuente
 COPY api ./api
-COPY mylib ./mylib
 COPY templates ./templates
+
+# Crear carpeta para la librería mylib
+RUN mkdir -p /app/mylib
+# Copiar archivos esenciales de la librería mylib
+COPY mylib/model.py mylib/__init__.py /app/mylib/
+
 
 # Crear carpeta de trabajo para imágenes o archivos
 RUN mkdir -p /app/uploads

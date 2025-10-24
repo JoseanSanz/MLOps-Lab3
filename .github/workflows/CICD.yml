@@ -47,8 +47,9 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/lab3:latest
           file: ./Dockerfile
 
-  #     - name: Trigger Render Deploy
-  #       run: curl -X POST "https://api.render.com/deploy/srv-d3sk3mp5pdvs73fm0030?key=${{ secrets.RENDER_DEPLOY_HOOK_KEY }}"
+      - name: Trigger Render Deploy
+        run: curl -X POST "https://api.render.com/deploy/srv-d3tj7dv5r7bs73esanj0?key=${{ secrets.RENDER_DEPLOY_HOOK_KEY }}"
+
   # deploy-hf:
   #   runs-on: ubuntu-latest
   #   needs: packaging   # solo se ejecuta si packaging pasa

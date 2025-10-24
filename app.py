@@ -19,7 +19,7 @@ def predecir_etiqueta(image):
 
         # Enviar la imagen a la API FastAPI
         files = {"file": ("image.jpg", img_byte_arr, "image/jpeg")}
-        response = requests.post(f"{API_URL}/predict", files=files, timeout=10)
+        response = requests.post(f"{API_URL}/predict", files=files, timeout=25)
         response.raise_for_status()
         data = response.json()
         return data.get("label")
@@ -37,7 +37,7 @@ def predecir_etiqueta(image):
 iface = gr.Interface(
     fn=predecir_etiqueta,
     inputs=gr.Image(type="pil"),
-    outputs=gr.Textbox(label="Etiqueta Predicha"),
+    outputs=gr.Textbox(label="Predicción de imagen"),
     title="Clasificador de Imágenes con FastAPI y Gradio",
     description="Sube una imagen de un perro o un gato y obtén la etiqueta predicha usando la API FastAPI /predict",
 )

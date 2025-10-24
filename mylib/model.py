@@ -1,15 +1,6 @@
 """
 Módulo que contiene funciones para predecir etiquetas de imágenes y redimensionarlas.
 """
-
-# import random
-from PIL import Image
-from transformers import AutoImageProcessor, AutoModelForImageClassification
-import torch
-import io
-
-
-
 class ImageClassifier:
     def __init__(self, model_name="google/mobilenet_v2_1.0_224"):#"facebook/deit-tiny-patch16-224"
         self.processor = AutoImageProcessor.from_pretrained(model_name, use_fast=False)

@@ -23,4 +23,5 @@ dependencies = [
     "huggingface-hub[cli]>=0.35.3",
     "torch>=2.9.0",
     "transformers>=4.57.1",
+    "onnxscript>=0.5.4",
 ]

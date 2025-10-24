@@ -5,9 +5,10 @@ Main cli or app entry point para redimensionar imágenes y predecir etiquetas al
 # Importamos las librerías necesarias
 from pathlib import Path
 import sys
+import io
 import click
 from PIL import Image
-from mylib.model import predict_label, resize_image
+from mylib.model import model  # predict_label, resize_image
 
 
 # Creamos un grupo de comandos
@@ -38,8 +39,13 @@ def resize(input_path: str, output_path: str, width: int, height: int):
 
     try:
         with Image.open(Path(input_path)) as img:
-            img = img.convert("RGB")
-            resized = resize_image(img, width, height)
+            # aquí trabajas con la imagen
+            img_bytes = io.BytesIO()
+            img.save(img_bytes, format="JPEG")
+            image_bytes = img_bytes.getvalue()
+            resized = model.resize_image(image_bytes, width, height)
+            # img = img.convert("RGB")
+            # resized = resize_image(img, width, height)
             resized.save(Path(output_path))
     except FileNotFoundError:
         click.echo(f"Error: el archivo '{input_path}' no existe.")
@@ -61,7 +67,12 @@ def predict(image_path: str):
 
     try:
         with Image.open(Path(image_path)) as img:
-            label = predict_label(img)
+            # aquí trabajas con la imagen
+            img_bytes = io.BytesIO()
+            img.save(img_bytes, format="JPEG")
+            image_bytes = img_bytes.getvalue()
+            label = model.predict(image_bytes)
+            # label = predict_label(img)
             click.echo(click.style(label, fg="green"))
     except FileNotFoundError:
         click.echo(f"Error: el archivo '{image_path}' no existe.")

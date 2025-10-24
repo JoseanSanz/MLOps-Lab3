@@ -4,7 +4,7 @@ from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
-from mylib.model import predict_label, resize_image
+from mylib.model import model  # predict_label, resize_image
 from PIL import Image
 import io
 from pathlib import Path
@@ -59,10 +59,10 @@ async def resize(
         img.verify()  # verifica que sea una imagen válida
 
         # Reabrir la imagen para poder procesarla, ya que verify() deja la imagen cerrada
-        img = Image.open(io.BytesIO(contents)).convert("RGB")
+        # img = Image.open(io.BytesIO(contents)).convert("RGB")
 
         # Redimensionar la imagen
-        resized = resize_image(img, width, height)
+        resized = model.resize_image(contents, width, height)
 
         # Guardar la imagen redimensionada en el directorio de uploads
         filename = Path(file.filename)
@@ -94,10 +94,11 @@ async def predict(file: UploadFile = File(...)):
         img.verify()  # verifica que sea una imagen válida
 
         # Reabrir la imagen para poder procesarla, ya que verify() deja la imagen cerrada
-        img = Image.open(io.BytesIO(contents)).convert("RGB")
+        # img = Image.open(io.BytesIO(contents)).convert("RGB")
 
         # Predecir la etiqueta
-        label = predict_label(img)
+        label = model.predict(contents)
+        # label = predict_label(img)
 
         return {"label": label}
 

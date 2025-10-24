@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libjpeg-dev \
     zlib1g-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-    && pip cache purge
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    && pip cache purge \
     && rm -rf /root/.cache/huggingface /root/.cache/torch
 
 # -------------------------------------------------------------------

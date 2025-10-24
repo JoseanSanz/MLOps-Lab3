@@ -1,7 +1,6 @@
 """
 Módulo que contiene funciones para predecir etiquetas de imágenes y redimensionarlas.
 """
-
 # import random
 from PIL import Image
 # from transformers import AutoImageProcessor, AutoModelForImageClassification

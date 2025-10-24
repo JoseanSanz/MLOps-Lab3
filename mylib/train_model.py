@@ -41,7 +41,7 @@ torch.onnx.export(
 )
 
 config = AutoConfig.from_pretrained(model_name, use_fast=False)
-labels_file = "labels.json"
+labels_file = "./mylib/labels.json"
 with open(labels_file, "w") as f:
     json.dump(config.id2label, f)
 

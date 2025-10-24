@@ -37,7 +37,7 @@ def predecir_etiqueta(image):
 iface = gr.Interface(
     fn=predecir_etiqueta,
     inputs=gr.Image(type="pil"),
-    outputs=gr.Textbox(label="Predicción de imagen"),
+    outputs=gr.Textbox(label="Predicción"),
     title="Clasificador de Imágenes con FastAPI y Gradio",
     description="Sube una imagen de un perro o un gato y obtén la etiqueta predicha usando la API FastAPI /predict",
 )

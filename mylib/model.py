@@ -15,7 +15,13 @@ class ImageClassifier:
         """
         Inicializa la sesión ONNX Runtime.
         """
-        self.session = ort.InferenceSession(model_path)
+        sess_options=ort.SessionOptions()
+        sess_options.intra_op_num_threads = 4
+        self.session = ort.InferenceSession(
+            model_path,
+            providers=["CPUExecutionProvider"],
+            sess_options=sess_options
+        )
 
         self.input_name = self.session.get_inputs()[0].name
         self.id2label = {}

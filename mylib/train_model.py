@@ -1,18 +1,101 @@
 import torch
-from transformers import AutoImageProcessor, AutoModelForImageClassification, AutoConfig
+from transformers import AutoImageProcessor, AutoModelForImageClassification, AutoConfig, TrainingArguments, Trainer, DefaultDataCollator
 import json
+from datasets import load_dataset
+import evaluate
+import numpy as np
 
+# Cargar dataset
+dataset = load_dataset("beans")
 
-output_path = "./mylib/model.onnx"
-model_name = "google/mobilenet_v2_1.0_224"
+# Fusionar clases 0 y 1 en una sola etiqueta (1 = rust)
+def merge_labels(example):
+    if example["labels"] in [0, 1]:
+        example["labels"] = 1  # rust
+    else:
+        example["labels"] = 0  # healthy
+    return example
+
+dataset["train"] = dataset["train"].map(merge_labels)
+dataset["validation"] = dataset["validation"].map(merge_labels)
+dataset["test"] = dataset["test"].map(merge_labels)
+
+# Nuevo esquema de etiquetas
+id2label = {0: "healthy", 1: "rust"}
+label2id = {v: k for k, v in id2label.items()}
+
+# Ver distribución (debería quedar desbalanceado)
+from collections import Counter
+print("Train label distribution:", Counter(dataset["train"]["labels"]))
+
 
 """
 Descarga un modelo preentrenado de Hugging Face y lo exporta a formato ONNX.
 """
+model_name = "google/mobilenet_v2_1.0_224"
 print(f"Cargando modelo preentrenado: {model_name}")
 processor = AutoImageProcessor.from_pretrained(model_name, use_fast=False)
-model = AutoModelForImageClassification.from_pretrained(model_name)
+
+
+dataset["train"] = dataset["train"].map(
+    lambda examples: {"pixel_values": processor([img.convert("RGB") for img in examples["image"]], return_tensors="pt").pixel_values},
+    batched=True
+)
+dataset["validation"] = dataset["validation"].map(
+    lambda examples: {"pixel_values": processor([img.convert("RGB") for img in examples["image"]], return_tensors="pt").pixel_values},
+    batched=True
+)
+dataset["test"] = dataset["test"].map(
+    lambda examples: {"pixel_values": processor([img.convert("RGB") for img in examples["image"]], return_tensors="pt").pixel_values},
+    batched=True
+)
+
+# Cargar el modelo preentrenado
+# model = AutoModelForImageClassification.from_pretrained(model_name)
+# Ajustar el modelo para clasificación binaria
+model = AutoModelForImageClassification.from_pretrained(
+    model_name,
+    num_labels=2,
+    id2label=id2label,
+    label2id=label2id,
+    ignore_mismatched_sizes=True,
+)
+
+accuracy = evaluate.load("accuracy")
+
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    predictions = np.argmax(logits, axis=-1)
+    return accuracy.compute(predictions=predictions, references=labels)
+
+training_args = TrainingArguments(
+    output_dir="./results",
+    eval_strategy="epoch",
+    save_strategy="no",
+    learning_rate=5e-5,
+    per_device_train_batch_size=16,
+    per_device_eval_batch_size=16,
+    num_train_epochs=3,
+    weight_decay=0.01,
+)
+
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=dataset["train"],
+    eval_dataset=dataset["validation"],
+    data_collator=DefaultDataCollator(),
+    # tokenizer=processor,
+    compute_metrics=compute_metrics,
+)
+
+# Entrenar el modelo
+trainer.train()
+
+# Exportar el modelo a ONNX
+# Poner el modelo en modo evaluación
 model.eval()
+model.cpu()
 
 # Determinar tamaño de entrada de manera robusta
 size = processor.size
@@ -29,6 +112,7 @@ print(f"Usando tamaño de entrada: {height}x{width}")
 # Crear una entrada dummy compatible con el modelo
 dummy_input = torch.randn(1, 3, height, width)
 
+output_path = "./mylib/model.onnx"
 print(f"Exportando modelo a {output_path}...")
 torch.onnx.export(
     model,
@@ -40,9 +124,10 @@ torch.onnx.export(
     opset_version=12,
 )
 
-config = AutoConfig.from_pretrained(model_name, use_fast=False)
+# config = AutoConfig.from_pretrained(model_name, use_fast=False) # esto si quiereas labels del pretrained
 labels_file = "./mylib/labels.json"
 with open(labels_file, "w") as f:
-    json.dump(config.id2label, f)
+    # json.dump(config.id2label, f)# son las pretrained
+    json.dump(label2id, f) # tiene que dar "0": "healthy" y ahora mismo lo hace al revés
 
 print(f"Modelo exportado correctamente a {output_path} y etiqeutas de clases a {labels_file}")

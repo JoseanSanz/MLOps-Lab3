@@ -25,4 +25,8 @@ dependencies = [
     "transformers>=4.57.1",
     "onnxscript>=0.5.4",
     "onnxruntime>=1.23.2",
+    "datasets>=4.3.0",
+    "evaluate>=0.4.6",
+    "scikit-learn>=1.7.2",
+    "accelerate>=1.11.0",
 ]

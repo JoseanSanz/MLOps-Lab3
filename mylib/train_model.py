@@ -128,6 +128,6 @@ torch.onnx.export(
 labels_file = "./mylib/labels.json"
 with open(labels_file, "w") as f:
     # json.dump(config.id2label, f)# son las pretrained
-    json.dump(label2id, f) # tiene que dar "0": "healthy" y ahora mismo lo hace al revés
+    json.dump(id2label, f) # tiene que dar "0": "healthy" y ahora mismo lo hace al revés
 
 print(f"Modelo exportado correctamente a {output_path} y etiqeutas de clases a {labels_file}")

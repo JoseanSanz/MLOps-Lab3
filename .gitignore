@@ -9,6 +9,9 @@ __pycache__/
 # Ignore MLFlow files
 mlruns/
 
+# Ignore data files associated with downloaded datasets
+data/
+
 # Ignore system's files
 .DS_Store
 

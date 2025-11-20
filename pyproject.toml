@@ -29,4 +29,9 @@ dependencies = [
     "evaluate>=0.4.6",
     "scikit-learn>=1.7.2",
     "accelerate>=1.11.0",
+    "mlflow>=3.5.1",
+    "matplotlib>=3.10.7",
+    "psutil>=7.1.2",
+    "gputil>=1.4.0",
+    "torchvision>=0.24.0",
 ]

@@ -4,7 +4,7 @@ from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
-from mylib.model import model  # predict_label, resize_image
+from mylib.model_onnx_inference import model  # predict_label, resize_image
 from PIL import Image
 import io
 from pathlib import Path
@@ -109,4 +109,4 @@ async def predict(file: UploadFile = File(...)):
 
 
 if __name__ == "__main__":
-    uvicorn.run("api.fastapi_app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api.api:app", host="0.0.0.0", port=8000, reload=True)

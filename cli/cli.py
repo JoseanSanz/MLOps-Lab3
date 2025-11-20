@@ -8,7 +8,7 @@ import sys
 import io
 import click
 from PIL import Image
-from mylib.model import model  # predict_label, resize_image
+from mylib.model_onnx_inference import model  # predict_label, resize_image
 
 
 # Creamos un grupo de comandos

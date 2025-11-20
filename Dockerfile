@@ -48,7 +48,7 @@ COPY templates ./templates
 # Crear carpeta para la librería mylib
 RUN mkdir -p /app/mylib
 # Copiar archivos esenciales de la librería mylib
-COPY mylib/model.py mylib/__init__.py mylib/model.onnx mylib/model.onnx.data mylib/labels.json /app/mylib/
+COPY mylib/model_onnx_inference.py mylib/__init__.py mylib/model.onnx mylib/model.onnx.data mylib/labels.json /app/mylib/
 
 
 # Crear carpeta de trabajo para imágenes o archivos
@@ -58,5 +58,5 @@ RUN mkdir -p /app/uploads
 EXPOSE 8000
 
 # Comando por defecto: iniciar FastAPI con uvicorn
-CMD ["uvicorn", "api.fastapi_app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "api.api:app", "--host", "0.0.0.0", "--port", "8000"]
 

@@ -1,8 +1,10 @@
 """
 Módulo que contiene funciones para predecir etiquetas de imágenes y redimensionarlas.
 """
+
 # import random
 from PIL import Image
+
 # from transformers import AutoImageProcessor, AutoModelForImageClassification
 import torch
 import numpy as np
@@ -10,17 +12,18 @@ import io
 import onnxruntime as ort
 import json
 
+
 class ImageClassifier:
-    def __init__(self, model_path="./mylib/model.onnx", labels_file="./mylib/labels.json"):#"facebook/deit-tiny-patch16-224"
+    def __init__(
+        self, model_path="./mylib/model.onnx", labels_file="./mylib/labels.json"
+    ):  # "facebook/deit-tiny-patch16-224"
         """
         Inicializa la sesión ONNX Runtime.
         """
-        sess_options=ort.SessionOptions()
+        sess_options = ort.SessionOptions()
         sess_options.intra_op_num_threads = 4
         self.session = ort.InferenceSession(
-            model_path,
-            providers=["CPUExecutionProvider"],
-            sess_options=sess_options
+            model_path, providers=["CPUExecutionProvider"], sess_options=sess_options
         )
 
         self.input_name = self.session.get_inputs()[0].name
@@ -63,7 +66,7 @@ class ImageClassifier:
 
         Args:
             image (PIL.Image.Image): Imagen a redimensionar.
-            width (int): Anchura deseada. 
+            width (int): Anchura deseada.
             height (int): Altura deseada.
 
         Returns:
@@ -75,12 +78,6 @@ class ImageClassifier:
 
         return image_resized
 
+
 # Carga global del modelo (solo una vez)
 model = ImageClassifier()
-
-# # Crea una función que devuelva una etiqueta aleatoria de entre 'dog' y 'cat'
-# def predict_label(_image: Image.Image):
-#     """Devuelve una etiqueta aleatoria: 'dog' o 'cat'.
-#     Simple función que simula la salida de un modelo.
-#     """
-#     return random.choice(["dog", "cat"])

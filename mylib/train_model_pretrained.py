@@ -45,4 +45,6 @@ labels_file = "./mylib/labels.json"
 with open(labels_file, "w") as f:
     json.dump(config.id2label, f)
 
-print(f"Modelo exportado correctamente a {output_path} y etiqeutas de clases a {labels_file}")
+print(
+    f"Modelo exportado correctamente a {output_path} y etiqeutas de clases a {labels_file}"
+)

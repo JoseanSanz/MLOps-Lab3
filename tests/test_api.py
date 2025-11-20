@@ -1,7 +1,7 @@
 # genera codigo para realizar el testing con pytest de fastapi_app.py similar a test_flask_main.py
 import io
 import pytest
-from api.fastapi_app import app
+from api.api import app
 from PIL import Image
 from fastapi.testclient import TestClient
 from pathlib import Path

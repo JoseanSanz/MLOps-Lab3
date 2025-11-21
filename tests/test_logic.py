@@ -9,19 +9,20 @@ def test_model_predict():
     # Creamos una imagen de prueba de 200x200 píxeles
     img = Image.new("RGB", (200, 200), color="red")
     # Crear un buffer temporal en memoria
-    buffer = io.BytesIO()
+    # buffer = io.BytesIO()
 
     # Guardar la imagen en ese buffer en formato JPEG o PNG
-    img.save(buffer, format="JPEG")
+    # img.save(buffer, format="JPEG")
 
     # Obtener los bytes del buffer
-    image_bytes = buffer.getvalue()
+    # image_bytes = buffer.getvalue()
 
     # label = predict_label(img)
-    label = model.predict(image_bytes)
+    # label = model.predict(image_bytes)
+    label = model.predict(img)
 
     # Opcional: cerrar el buffer
-    buffer.close()
+    # buffer.close()
     # La etiqueta debe ser 'dog' o 'cat'
     assert label  # in {"dog", "cat"}
 

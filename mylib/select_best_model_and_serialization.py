@@ -1,9 +1,10 @@
 """Modulo para seleccionar y serializar el mejor modelo"""
+
 import json
 from pathlib import Path
 import mlflow
 from mlflow.tracking import MlflowClient
-import torch # pylint: disable=import-error,no-member
+import torch
 
 # ----------------------
 # CONFIG
@@ -41,7 +42,9 @@ for v in versions:
         best_acc = val_acc
         best_version = v
 
-print(f"Mejor versión: {best_version.version}, run_id: {best_version.run_id}, acc={best_acc:.4f}")
+print(
+    f"Mejor versión: {best_version.version}, run_id: {best_version.run_id}, acc={best_acc:.4f}"
+)
 
 # ----------------------
 # 3. Cargar el modelo PyTorch
@@ -62,8 +65,8 @@ torch.onnx.export(
     model,
     dummy_input,
     OUTPUT_ONNX_PATH,
-    input_names=['input'],
-    output_names=['output'],
+    input_names=["input"],
+    output_names=["output"],
     # dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}},
     # export_params=True,
     opset_version=18,

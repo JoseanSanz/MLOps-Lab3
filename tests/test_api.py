@@ -19,24 +19,43 @@ def test_home_endpoint(client):
     assert response.status_code == 200
 
 
-# creamos un test para el endpoint /predict
+# # creamos un test para el endpoint /predict
+# def test_predict_endpoint(client):
+#     """Verifica que /predict devuelve etiqueta válida."""
+#     input_path = Path("./perro.jpg")
+#     input_path = Path("./imagen_0.png")
+#     with Image.open(input_path, 'r') as img:
+#         img = img.convert("RGB")
+#         img_bytes = io.BytesIO()
+#         img.save(img_bytes, format="JPEG")
+#         img_bytes.seek(0)  # 🔹 muy importante: volver al inicio del buffer
+#     # with open(input_path, "rb") as f:
+#     #     img_bytes = io.BytesIO(f.read())  # lee directamente los bytes
+
+#     response = client.post(
+#         "/predict",
+#         files={"file": ("perro.jpg", img_bytes, "image/jpeg")},
+#     )
+#     # ✅ Verificar respuesta HTTP
+#     assert response.status_code == 200, response.text
+#     data = response.json()
+#     assert "label" in data
+#     # assert data["label"] in {"dog", "cat"}
+
+
 def test_predict_endpoint(client):
-    """Verifica que /predict devuelve etiqueta válida."""
     input_path = Path("./perro.jpg")
-    with Image.open(input_path) as img:
-        img = img.convert("RGB")
-        img_bytes = io.BytesIO()
-        img.save(img_bytes, format="JPEG")
-        img_bytes.seek(0)  # 🔹 muy importante: volver al inicio del buffer
+    with open(input_path, "rb") as f:
+        img_bytes = io.BytesIO(f.read())
+
     response = client.post(
         "/predict",
         files={"file": ("perro.jpg", img_bytes, "image/jpeg")},
     )
-    # ✅ Verificar respuesta HTTP
+
     assert response.status_code == 200, response.text
     data = response.json()
     assert "label" in data
-    # assert data["label"] in {"dog", "cat"}
 
 
 # genera un test para predict con una imagen no válida

@@ -77,35 +77,55 @@ async def resize(
         ) from e
 
 
-# Endpoint para predecir etiqueta de imagen
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    """
-    Endpoint REST para predecir la etiqueta de una imagen enviada en un formulario.
-
-    Espera un formulario con:
-    - file: imagen (multipart/form-data)
-    """
-
     try:
-        # Abrir la imagen en memoria
         contents = await file.read()
-        img = Image.open(io.BytesIO(contents))
-        img.verify()  # verifica que sea una imagen válida
-
-        # Reabrir la imagen para poder procesarla, ya que verify() deja la imagen cerrada
-        # img = Image.open(io.BytesIO(contents)).convert("RGB")a
-
-        # Predecir la etiqueta
-        label = model.predict(contents)
-        # label = predict_label(img)
-
+        img = Image.open(io.BytesIO(contents)).convert("RGB")  # 🔹 RGB seguro
+        label = model.predict(img)
         return {"label": label}
 
     except Exception as e:
+        # Para depuración, imprime el error en consola
+        # import traceback
+        # print(traceback.format_exc())
         raise HTTPException(
             status_code=400, detail="No se ha subido una imagen válida"
         ) from e
+
+
+# # Endpoint para predecir etiqueta de imagen
+# @app.post("/predict")
+# async def predict(file: UploadFile = File(...)):
+#     """
+#     Endpoint REST para predecir la etiqueta de una imagen enviada en un formulario.
+
+#     Espera un formulario con:
+#     - file: imagen (multipart/form-data)
+#     """
+
+#     try:
+#         # Abrir la imagen en memoria
+#         contents = await file.read()
+#         img = Image.open(io.BytesIO(contents)).convert("RGB")
+#         # img.load()
+#         # img.verify()  # verifica que sea una imagen válida
+
+#         # Reabrir la imagen para poder procesarla, ya que verify() deja la imagen cerrada
+#         # img = Image.open(io.BytesIO(contents)).convert("RGB")
+#         # img.convert("RGB").save(img_bytes, format="JPEG")
+#         # img_bytes.seek(0)
+
+#         # Predecir la etiqueta
+#         label = model.predict(img)
+#         # label = predict_label(img)
+
+#         return {"label": label}
+
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=400, detail="No se ha subido una imagen válida"
+#         ) from e
 
 
 if __name__ == "__main__":

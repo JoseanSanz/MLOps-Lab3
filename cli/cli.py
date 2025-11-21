@@ -68,11 +68,12 @@ def predict(image_path: str):
     try:
         with Image.open(Path(image_path)) as img:
             # aquí trabajas con la imagen
-            img_bytes = io.BytesIO()
-            img.save(img_bytes, format="JPEG")
-            image_bytes = img_bytes.getvalue()
-            label = model.predict(image_bytes)
-            # label = predict_label(img)
+            # img_bytes = io.BytesIO()
+            # img.save(img_bytes, format="JPEG")
+            # image_bytes = img_bytes.getvalue()
+            # label = model.predict(image_bytes)
+            img.convert("RGB")
+            label = model.predict(img)
             click.echo(click.style(label, fg="green"))
     except FileNotFoundError:
         click.echo(f"Error: el archivo '{image_path}' no existe.")

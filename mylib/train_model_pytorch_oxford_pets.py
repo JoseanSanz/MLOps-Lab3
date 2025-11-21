@@ -1,4 +1,5 @@
-"""Modylo para transfer learning"""
+"""Modulo para transfer learning"""
+
 import os
 import time
 import json
@@ -6,9 +7,9 @@ import psutil
 import mlflow
 import mlflow.pytorch
 from mlflow.models import infer_signature
-import torch # pylint: disable=import-error,no-member
-from torch import nn # pylint: disable=import-error,no-member
-from torch.utils.data import DataLoader, random_split # pylint: disable=import-error,no-member
+import torch
+from torch import nn  # pylint: disable=no-name-in-module
+from torch.utils.data import DataLoader, random_split
 from torchvision import models, transforms
 from torchvision.datasets import OxfordIIITPet
 import matplotlib.pyplot as plt
@@ -17,7 +18,7 @@ import matplotlib.pyplot as plt
 # ----------
 # CONFIG
 # ----------
-BATCH_SIZE = 38 #16, 24, 32
+BATCH_SIZE = 38  # 16, 24, 32
 EPOCHS = 5
 LEARNING_RATE = 1e-3
 IMG_SIZE = 224
@@ -29,10 +30,9 @@ EXPERIMENT_NAME = "mobilenetv2-pets-transfer-learning"
 # ----------
 # DATASET
 # ----------
-transform = transforms.Compose([
-    transforms.Resize((IMG_SIZE, IMG_SIZE)),
-    transforms.ToTensor()
-])
+transform = transforms.Compose(
+    [transforms.Resize((IMG_SIZE, IMG_SIZE)), transforms.ToTensor()]
+)
 
 dataset = OxfordIIITPet(root="data", download=True, transform=transform)
 num_classes = len(dataset.classes)
@@ -46,8 +46,13 @@ num_train = len(dataset) - num_val
 g = torch.Generator().manual_seed(SEED)
 train_ds, val_ds = random_split(dataset, [num_train, num_val], generator=g)
 
-train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, generator=g, \
-                            worker_init_fn=lambda worker_id: torch.manual_seed(SEED))
+train_loader = DataLoader(
+    train_ds,
+    batch_size=BATCH_SIZE,
+    shuffle=True,
+    generator=g,
+    worker_init_fn=lambda worker_id: torch.manual_seed(SEED),
+)
 val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=False)
 
 
@@ -81,15 +86,17 @@ with mlflow.start_run(run_name=RUN_NAME) as run:
     process = psutil.Process()
 
     # -------- log hyperparameters --------
-    mlflow.log_params({
-        "batch_size": BATCH_SIZE,
-        "epochs": EPOCHS,
-        "learning_rate": LEARNING_RATE,
-        "img_size": IMG_SIZE,
-        "model": "MobileNetV2",
-        "dataset": "Oxford-IIIT Pet",
-        "data_split_seed": SEED
-    })
+    mlflow.log_params(
+        {
+            "batch_size": BATCH_SIZE,
+            "epochs": EPOCHS,
+            "learning_rate": LEARNING_RATE,
+            "img_size": IMG_SIZE,
+            "model": "MobileNetV2",
+            "dataset": "Oxford-IIIT Pet",
+            "data_split_seed": SEED,
+        }
+    )
 
     train_losses = []
     val_losses = []
@@ -163,8 +170,8 @@ with mlflow.start_run(run_name=RUN_NAME) as run:
         mlflow.log_metric("epoch_val_time_sec", val_epoch_time, step=epoch)
         mlflow.log_artifact("labels.json")
         if DEVICE == "cuda":
-            gpu_mem = torch.cuda.memory_allocated() / (1024 ** 2)   # en MB
-            gpu_mem_peak = torch.cuda.max_memory_allocated() / (1024 ** 2)
+            gpu_mem = torch.cuda.memory_allocated() / (1024**2)  # en MB
+            gpu_mem_peak = torch.cuda.max_memory_allocated() / (1024**2)
             mlflow.log_metric("gpu_memory_MB", gpu_mem, step=epoch)
             mlflow.log_metric("gpu_memory_peak_MB", gpu_mem_peak, step=epoch)
 
@@ -172,10 +179,12 @@ with mlflow.start_run(run_name=RUN_NAME) as run:
         cpu_mem_mb = process.memory_info().rss / (1024**2)
         mlflow.log_metric("cpu_memory_MB", cpu_mem_mb, step=epoch)
 
-        print(f"Epoch {epoch+1}/{EPOCHS} | "
-              f"Train Loss: {epoch_train_loss:.4f} | "
-              f"Val Loss: {epoch_val_loss:.4f} | "
-              f"Val Acc: {epoch_val_acc:.4f}")
+        print(
+            f"Epoch {epoch+1}/{EPOCHS} | "
+            f"Train Loss: {epoch_train_loss:.4f} | "
+            f"Val Loss: {epoch_val_loss:.4f} | "
+            f"Val Acc: {epoch_val_acc:.4f}"
+        )
 
     # ----------
     # Save loss curves as artifact
@@ -216,7 +225,7 @@ with mlflow.start_run(run_name=RUN_NAME) as run:
         name="model",
         input_example=input_example.numpy(),
         signature=signature,
-        registered_model_name="mobilenetv2_oxford_pets"
+        registered_model_name="mobilenetv2_oxford_pets",
     )
 
     print("Model logged and registered in MLflow")

@@ -1,8 +1,9 @@
-import mlflow
-from mlflow.tracking import MlflowClient
-import torch
+"""Modulo para seleccionar y serializar el mejor modelo"""
 import json
 from pathlib import Path
+import mlflow
+from mlflow.tracking import MlflowClient
+import torch # pylint: disable=import-error,no-member
 
 # ----------------------
 # CONFIG
@@ -45,9 +46,9 @@ print(f"Mejor versión: {best_version.version}, run_id: {best_version.run_id}, a
 # ----------------------
 # 3. Cargar el modelo PyTorch
 # ----------------------
-model_uri = f"runs:/{best_version.run_id}/model"
-print(f"Cargando modelo desde {model_uri} ...")
-model = mlflow.pytorch.load_model(model_uri)
+MODEL_URI = f"runs:/{best_version.run_id}/model"
+print(f"Cargando modelo desde {MODEL_URI} ...")
+model = mlflow.pytorch.load_model(MODEL_URI)
 model = model.to("cpu")
 model.eval()
 
@@ -73,16 +74,16 @@ print(f"Modelo exportado a ONNX: {onnx_path.resolve()}")
 # ----------------------
 # 5. Obtener las etiquetas asociadas a esa versión
 # ----------------------
+class_names = {}
 if best_version is not None:
     run_id = best_version.run_id
     # Descargar el artifact labels.json asociado al modelo
-    artifact_path = "labels.json"  # ruta donde lo guardaste al logear
-    local_path = client.download_artifacts(run_id, artifact_path)
+    ARTIFACT_PATH = "labels.json"  # ruta donde lo guardaste al logear
+    local_path = client.download_artifacts(run_id, ARTIFACT_PATH)
 
     # Cargar las clases
-    with open(local_path, "r") as f:
+    with open(local_path, "r", encoding="utf-8") as f:
         class_names = json.load(f)
 
-with open(OUTPUT_JSON_PATH, "w") as f:
+with open(OUTPUT_JSON_PATH, "w", encoding="utf-8") as f:
     json.dump(class_names, f)
-

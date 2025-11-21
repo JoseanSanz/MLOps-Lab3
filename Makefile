@@ -9,8 +9,8 @@ format:
 	uv run black mylib/*.py tests/*.py api/*.py cli/*.py
 
 lint:
-	uv run pylint --disable=R,C --ignore-patterns=test_.*\.py mylib/model_onnx_inference.py mylib/train_model_pytorch_oxford_pets.py api/*.py cli/*.py
+	uv run pylint --rcfile=.pylintrc --ignore-patterns=test_.*\.py  mylib/model_onnx_inference.py mylib/train_model_pytorch_oxford_pets.py mylib/select_best_model_and_serialization.py api/*.py cli/*.py
 
 refactor: format lint
 	
-all: install lint test format
+all: install format lint test

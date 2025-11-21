@@ -1,0 +1,6 @@
+[MASTER]
+extension-pkg-allow-list=torch
+
+[MESSAGES CONTROL]
+# Opcional: deshabilita refactor y convenciones si quieres
+disable=R,C

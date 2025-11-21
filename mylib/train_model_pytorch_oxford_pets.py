@@ -1,34 +1,36 @@
+"""Modylo para transfer learning"""
+import os
+import time
+import json
+import psutil
 import mlflow
 import mlflow.pytorch
 from mlflow.models import infer_signature
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader, random_split
+import torch # pylint: disable=import-error,no-member
+from torch import nn # pylint: disable=import-error,no-member
+from torch.utils.data import DataLoader, random_split # pylint: disable=import-error,no-member
 from torchvision import models, transforms
 from torchvision.datasets import OxfordIIITPet
 import matplotlib.pyplot as plt
-import os
-import time
-import psutil
-import json
+
 
 # ----------
 # CONFIG
 # ----------
-batch_size = 38 #16, 24, 32
-epochs = 5
-learning_rate = 1e-3
-img_size = 224
-val_split = 0.2
-seed = 42
-experiment_name = "mobilenetv2-pets-transfer-learning"
+BATCH_SIZE = 38 #16, 24, 32
+EPOCHS = 5
+LEARNING_RATE = 1e-3
+IMG_SIZE = 224
+VAL_SPLIT = 0.2
+SEED = 42
+EXPERIMENT_NAME = "mobilenetv2-pets-transfer-learning"
 
 
 # ----------
 # DATASET
 # ----------
 transform = transforms.Compose([
-    transforms.Resize((img_size, img_size)),
+    transforms.Resize((IMG_SIZE, IMG_SIZE)),
     transforms.ToTensor()
 ])
 
@@ -39,13 +41,14 @@ num_classes = len(dataset.classes)
 class_names = dataset.classes  # ['Abyssinian', 'Bengal', ...]
 
 # Train/valid split
-num_val = int(len(dataset) * val_split)
+num_val = int(len(dataset) * VAL_SPLIT)
 num_train = len(dataset) - num_val
-g = torch.Generator().manual_seed(seed)
+g = torch.Generator().manual_seed(SEED)
 train_ds, val_ds = random_split(dataset, [num_train, num_val], generator=g)
 
-train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, generator=g, worker_init_fn=lambda worker_id: torch.manual_seed(seed))
-val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
+train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, generator=g, \
+                            worker_init_fn=lambda worker_id: torch.manual_seed(SEED))
+val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=False)
 
 
 # ----------
@@ -60,32 +63,32 @@ for p in model.features.parameters():
 # Replace classifier
 model.classifier[1] = nn.Linear(model.last_channel, num_classes)
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = model.to(device)
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(DEVICE)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 
 # ----------
 # MLflow setup
 # ----------
-mlflow.set_experiment(experiment_name)
-run_name = f"mobilenetv2_lr{learning_rate}_bs{batch_size}"
+mlflow.set_experiment(EXPERIMENT_NAME)
+RUN_NAME = f"mobilenetv2_lr{LEARNING_RATE}_bs{BATCH_SIZE}"
 
-with mlflow.start_run(run_name=run_name) as run:
+with mlflow.start_run(run_name=RUN_NAME) as run:
 
     process = psutil.Process()
 
     # -------- log hyperparameters --------
     mlflow.log_params({
-        "batch_size": batch_size,
-        "epochs": epochs,
-        "learning_rate": learning_rate,
-        "img_size": img_size,
+        "batch_size": BATCH_SIZE,
+        "epochs": EPOCHS,
+        "learning_rate": LEARNING_RATE,
+        "img_size": IMG_SIZE,
         "model": "MobileNetV2",
         "dataset": "Oxford-IIIT Pet",
-        "data_split_seed": seed
+        "data_split_seed": SEED
     })
 
     train_losses = []
@@ -94,26 +97,26 @@ with mlflow.start_run(run_name=run_name) as run:
     # ----------
     # TRAINING LOOP
     # ----------
-    for epoch in range(epochs):
-        
-        if device == "cuda":
+    for epoch in range(EPOCHS):
+
+        if DEVICE == "cuda":
             torch.cuda.reset_peak_memory_stats()
 
         t0 = time.time()
 
         model.train()
         running_train_loss = 0.0
-        
+
         for imgs, labels in train_loader:
-            imgs = imgs.to(device)
-            labels = labels.to(device)
-            
+            imgs = imgs.to(DEVICE)
+            labels = labels.to(DEVICE)
+
             optimizer.zero_grad()
             outputs = model(imgs)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-            
+
             running_train_loss += loss.item()
 
         epoch_train_loss = running_train_loss / len(train_loader)
@@ -131,9 +134,9 @@ with mlflow.start_run(run_name=run_name) as run:
 
         with torch.no_grad():
             for imgs, labels in val_loader:
-                imgs = imgs.to(device)
-                labels = labels.to(device)
-                
+                imgs = imgs.to(DEVICE)
+                labels = labels.to(DEVICE)
+
                 outputs = model(imgs)
                 loss = criterion(outputs, labels)
                 running_val_loss += loss.item()
@@ -149,7 +152,7 @@ with mlflow.start_run(run_name=run_name) as run:
         val_epoch_time = time.time() - t1
 
         # Guardar como artifact
-        with open("labels.json", "w") as f:
+        with open("labels.json", "w", encoding="utf-8") as f:
             json.dump(class_names, f)
 
         # ----- log losses and accuracy -----
@@ -159,17 +162,17 @@ with mlflow.start_run(run_name=run_name) as run:
         mlflow.log_metric("epoch_train_time_sec", train_epoch_time, step=epoch)
         mlflow.log_metric("epoch_val_time_sec", val_epoch_time, step=epoch)
         mlflow.log_artifact("labels.json")
-        if device == "cuda":
+        if DEVICE == "cuda":
             gpu_mem = torch.cuda.memory_allocated() / (1024 ** 2)   # en MB
             gpu_mem_peak = torch.cuda.max_memory_allocated() / (1024 ** 2)
             mlflow.log_metric("gpu_memory_MB", gpu_mem, step=epoch)
             mlflow.log_metric("gpu_memory_peak_MB", gpu_mem_peak, step=epoch)
-        
+
         # ---- CPU Memory ----
         cpu_mem_mb = process.memory_info().rss / (1024**2)
         mlflow.log_metric("cpu_memory_MB", cpu_mem_mb, step=epoch)
 
-        print(f"Epoch {epoch+1}/{epochs} | "
+        print(f"Epoch {epoch+1}/{EPOCHS} | "
               f"Train Loss: {epoch_train_loss:.4f} | "
               f"Val Loss: {epoch_val_loss:.4f} | "
               f"Val Acc: {epoch_val_acc:.4f}")
@@ -186,11 +189,11 @@ with mlflow.start_run(run_name=run_name) as run:
     plt.title("Training & Validation Loss")
 
     os.makedirs("plots", exist_ok=True)
-    plot_path = "plots/loss_curve.png"
-    plt.savefig(plot_path)
+    PLOT_PATH = "plots/loss_curve.png"
+    plt.savefig(PLOT_PATH)
     plt.close()
 
-    mlflow.log_artifact(plot_path)
+    mlflow.log_artifact(PLOT_PATH)
 
     # ----------
     # log final metrics
@@ -203,9 +206,9 @@ with mlflow.start_run(run_name=run_name) as run:
     # ----------
 
     # ejemplo de entrada: un batch de 1 imagen 3x224x224
-    input_example = torch.randn(1, 3, img_size, img_size, dtype=torch.float32).cpu()
+    input_example = torch.randn(1, 3, IMG_SIZE, IMG_SIZE, dtype=torch.float32).cpu()
     with torch.no_grad():
-        output_example = model(input_example.to(device)).cpu()
+        output_example = model(input_example.to(DEVICE)).cpu()
     signature = infer_signature(input_example.numpy(), output_example.numpy())
 
     mlflow.pytorch.log_model(

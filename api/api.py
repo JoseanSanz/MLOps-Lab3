@@ -94,7 +94,7 @@ async def predict(file: UploadFile = File(...)):
         img.verify()  # verifica que sea una imagen válida
 
         # Reabrir la imagen para poder procesarla, ya que verify() deja la imagen cerrada
-        # img = Image.open(io.BytesIO(contents)).convert("RGB")
+        # img = Image.open(io.BytesIO(contents)).convert("RGB")a
 
         # Predecir la etiqueta
         label = model.predict(contents)

@@ -12,6 +12,10 @@ mlruns/
 # Ignore data files associated with downloaded datasets
 data/
 
+# Ignore data files associated with results and plots of mlflow experiments
+plots/
+results/
+
 # Ignore system's files
 .DS_Store
 

@@ -26,6 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build   # solo se ejecuta si build pasa
     steps:
+      - name: Check ONNX and JSON
+        run: make test_model
       - name: Checkout repository (with submodules)
         uses: actions/checkout@v4 
         with:

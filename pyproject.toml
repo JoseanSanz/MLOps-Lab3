@@ -3,7 +3,7 @@ name = "mlops-lab3"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11,<3.12"
 dependencies = [
     "click>=8.0",
     "Pillow>=9.0",
@@ -21,7 +21,6 @@ dependencies = [
     "requests>=2.32.5",
     "docker>=7.1.0",
     "huggingface-hub[cli]>=0.35.3",
-    "torch>=2.9.0",
     "transformers>=4.57.1",
     "onnxscript>=0.5.4",
     "onnxruntime>=1.23.2",
@@ -33,5 +32,7 @@ dependencies = [
     "matplotlib>=3.10.7",
     "psutil>=7.1.2",
     "gputil>=1.4.0",
-    "torchvision>=0.24.0",
+    # Torch y TorchVision desde índice CPU oficial
+    "torch>=2.9.0; platform_system=='Linux'",
+    "torchvision>=0.24.0; platform_system=='Linux'",
 ]

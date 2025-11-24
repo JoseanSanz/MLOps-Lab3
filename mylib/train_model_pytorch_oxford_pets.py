@@ -8,7 +8,8 @@ import mlflow
 import mlflow.pytorch
 from mlflow.models import infer_signature
 import torch
-from torch import nn  # pylint: disable=no-name-in-module
+# from torch import nn  # pylint: disable=no-name-in-module
+import torch.nn as nn  # pylint: disable=no-name-in-module
 from torch.utils.data import DataLoader, random_split
 from torchvision import models, transforms
 from torchvision.datasets import OxfordIIITPet
@@ -18,7 +19,7 @@ import matplotlib.pyplot as plt
 # ----------
 # CONFIG
 # ----------
-BATCH_SIZE = 38  # 16, 24, 32
+BATCH_SIZE = 32  # 16, 24, 32, 38
 EPOCHS = 5
 LEARNING_RATE = 1e-3
 IMG_SIZE = 224

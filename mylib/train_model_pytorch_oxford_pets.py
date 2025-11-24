@@ -1,5 +1,4 @@
 """Modulo para transfer learning"""
-
 import os
 import time
 import json
@@ -8,9 +7,8 @@ import mlflow
 import mlflow.pytorch
 from mlflow.models import infer_signature
 import torch
-
-# from torch import nn  # pylint: disable=no-name-in-module
-import torch.nn as nn  # pylint: disable=no-name-in-module
+from torch import nn  # pylint: disable=no-name-in-module
+# import torch.nn as nn  # pylint: disable=no-name-in-module
 from torch.utils.data import DataLoader, random_split
 from torchvision import models, transforms
 from torchvision.datasets import OxfordIIITPet
